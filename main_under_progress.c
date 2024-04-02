@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-int *matrix(int rows, int columns)
+#include <math.h>
+float *matrix(int rows, int columns)
 {
-    int *mat;
-    mat = (int *)malloc(sizeof(int) * rows * columns);
+    float *mat;
+    mat = (float *)malloc(sizeof(float) * rows * columns);
     for (int i = 0; i < rows; i++)
     {
         for (int j = 0; j < columns; j++)
@@ -15,7 +16,7 @@ int *matrix(int rows, int columns)
     return mat;
 }
 
-int *dot_product(int *mat1, int rows1, int columns1, int *mat2, int rows2, int columns2)
+float *dot_product(float *mat1, int rows1, int columns1, float *mat2, int rows2, int columns2)
 {
     if (columns1 != rows2)
     {
@@ -24,8 +25,8 @@ int *dot_product(int *mat1, int rows1, int columns1, int *mat2, int rows2, int c
     }
     else
     {
-        int *dot_mat;
-        dot_mat = (int *)malloc(sizeof(int) * rows1 * columns2);
+        float *dot_mat;
+        dot_mat = (float *)malloc(sizeof(float) * rows1 * columns2);
         for (int i = 0; i < rows1; i++)
         {
             for (int j = 0; j < columns2; j++)
@@ -47,7 +48,7 @@ int *dot_product(int *mat1, int rows1, int columns1, int *mat2, int rows2, int c
     }
 }
 
-int *mat_sum(int *mat1, int rows1, int columns1, int *mat2, int rows2, int columns2)
+float *mat_sum(float *mat1, int rows1, int columns1, float *mat2, int rows2, int columns2)
 {
     if (rows1 != rows2 && columns1 != columns2)
     {
@@ -56,8 +57,8 @@ int *mat_sum(int *mat1, int rows1, int columns1, int *mat2, int rows2, int colum
     }
     else
     {
-        int *sum_mat;
-        sum_mat = (int *)malloc(sizeof(int) * rows1 * columns1);
+        float *sum_mat;
+        sum_mat = (float *)malloc(sizeof(float) * rows1 * columns1);
         for (int i = 0; i < rows1; i++)
         {
             for (int j = 0; j < columns1; j++)
@@ -69,42 +70,66 @@ int *mat_sum(int *mat1, int rows1, int columns1, int *mat2, int rows2, int colum
     }
 }
 
-int cost(int *mat1,int rows1,int columns1,int *mat2,int rows2,int columns2)
+float cost(float *mat1, int rows1, int columns1, float *mat2, int rows2, int columns2)
 {
-    if(rows1 != rows2 && columns1 != columns2)
+    if (rows1 != rows2 && columns1 != columns2)
     {
         printf("Incompatible matrices\n");
         return 0;
     }
     else
     {
-        int cost = 0;
-        for(int i = 0;i<rows1;i++)
+        float cost = 0;
+        for (int i = 0; i < rows1; i++)
         {
-            for(j = 0;j<columns1;j++)
+            for (int j = 0; j < columns1; j++)
             {
-                cost = cost + ((mat1[(i*columns1)+j]-mat2[(i*columns1)+j])*(mat1[(i*columns1)+j]-mat2[(i*columns1)+j]));
+                cost = cost + ((mat1[(i * columns1) + j] - mat2[(i * columns1) + j]) * (mat1[(i * columns1) + j] - mat2[(i * columns1) + j]));
             }
         }
         return cost;
     }
 }
+
+//------------------------------Activation Functions-------------------------------------------
+float RELU(float *data_in)
+{
+    if(*data_in <= 0)
+    {
+        return 0;
+    }
+    else
+    {
+        return *data_in;
+    }
+    
+}
+/*
+float SoftMax(float *data_in)
+{
+}
+*/
+float Sigmoid(float *data_in)
+{
+    return (1/(1+pow(2.7182818,*data_in)));
+}
+//---------------------------------------------------------------------------------------------
 int main()
 {
     int rows1 = 10;
     int columns1 = 10;
     int rows2 = 10;
     int columns2 = 1;
-    int *mat_x, *mat_y, *dot_mat_out,*bias_mat,*sum_mat;
-    mat_x = matrix(rows1, columns1);
-    mat_y = matrix(rows2, columns2);
-    bias_mat = matrix(rows2,columns2);
+    float *weights_mat, *input_mat, *dot_mat_out, *bias_mat, *sum_mat;
+    weights_mat = matrix(rows1, columns1);
+    input_mat = matrix(rows2, columns2);
+    bias_mat = matrix(rows2, columns2);
     printf("Mat_x\n");
     for (int i = 0; i < rows1; i++)
     {
         for (int j = 0; j < columns1; j++)
         {
-            printf("%d\t", mat_x[(i * columns1) + j]);
+            printf("%f\t", weights_mat[(i * columns1) + j]);
         }
         printf("\n");
     }
@@ -114,12 +139,12 @@ int main()
     {
         for (int j = 0; j < columns2; j++)
         {
-            printf("%d\t", mat_y[(i * columns2) + j]);
+            printf("%f\t", input_mat[(i * columns2) + j]);
         }
         printf("\n");
     }
     printf("\n");
-    dot_mat_out = dot_product(&mat_x[0], rows1, columns1, &mat_y[0], rows2, columns2);
+    dot_mat_out = dot_product(&weights_mat[0], rows1, columns1, &input_mat[0], rows2, columns2);
     if (dot_mat_out != NULL)
     {
         printf("Dot_Mat\n");
@@ -128,7 +153,7 @@ int main()
         {
             for (int j = 0; j < columns2; j++)
             {
-                printf("%d\t", dot_mat_out[(i * columns2) + j]);
+                printf("%f\t", dot_mat_out[(i * columns2) + j]);
             }
             printf("\n");
         }
@@ -139,7 +164,7 @@ int main()
     {
         for (int j = 0; j < columns2; j++)
         {
-            printf("%d\t", bias_mat[(i * columns2) + j]);
+            printf("%f\t", bias_mat[(i * columns2) + j]);
         }
         printf("\n");
     }
@@ -153,7 +178,7 @@ int main()
         {
             for (int j = 0; j < columns2; j++)
             {
-                printf("%d\t", sum_mat[(i * columns2) + j]);
+                printf("%f\t", sum_mat[(i * columns2) + j]);
             }
             printf("\n");
         }
